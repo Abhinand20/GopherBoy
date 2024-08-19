@@ -8,7 +8,7 @@ import (
 type Cycles common.Cycles
 
 type CPU struct {
-	MMU mmu.MMU
+	MMU *mmu.MMU
 	/* registers */
 	a byte
 	b byte
@@ -24,7 +24,11 @@ type CPU struct {
 }
 
 // TODO: Add init logic.
-func (cpu *CPU) init() {}
+func (cpu *CPU) Init() {}
 
 // TODO: Emulate a single CPU tick, return number of instruction cycles elapsed.
 func (cpu *CPU) Tick() Cycles { return 0 }
+
+func NewCPU() *CPU {
+	return &CPU{MMU: mmu.NewMMU()}
+}

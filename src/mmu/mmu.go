@@ -7,3 +7,7 @@ type MMU struct {
 func (mmu *MMU) Init() {}
 
 func (mmu *MMU) Tick() {}
+
+func NewMMU() *MMU {
+	return &MMU{}
+}

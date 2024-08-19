@@ -1,9 +1,5 @@
 package common
 
-import (
-	"os"
-)
-
 /*
 Common functions and types for the following -
 
@@ -16,8 +12,3 @@ Common functions and types for the following -
 type Cycles uint8
 
 // TODO: Add types for registers and operations on it.
-
-
-func readBytesFromFile(path string) ([]byte, error) {
-	return os.ReadFile(path)
-}

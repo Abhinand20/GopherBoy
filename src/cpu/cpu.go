@@ -23,12 +23,13 @@ type CPU struct {
 	sp uint16 
 }
 
-// TODO: Add init logic.
-func (cpu *CPU) Init() {}
+func (cpu *CPU) Init() error {
+	return cpu.MMU.Init()
+}
 
 // TODO: Emulate a single CPU tick, return number of instruction cycles elapsed.
 func (cpu *CPU) Tick() Cycles { return 0 }
 
-func NewCPU() *CPU {
-	return &CPU{MMU: mmu.NewMMU()}
+func NewCPU(bootRomPath, cartridgePath string) *CPU {
+	return &CPU{MMU: mmu.NewMMU(bootRomPath, cartridgePath)}
 }

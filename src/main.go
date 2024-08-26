@@ -15,6 +15,10 @@ func main() {
 	flag.StringVar(&cartridge, "cartridge", "../roms/dmg_boot.bin", "The path for dmg game cartridge.")
 
 	mb := motherboard.NewMotherboard(bootRom, cartridge)
+	if err := mb.Init(); err != nil {
+		fmt.Printf("%v\n", err)
+		os.Exit(1)
+	}
 	if err := mb.Emulate(); err != nil {
 		fmt.Printf("Stopped emulation: %v\n", err)
 		os.Exit(1)

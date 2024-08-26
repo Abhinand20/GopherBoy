@@ -26,8 +26,6 @@ func (mmu *MMU) Init() error {
 }
 
 
-func (mmu *MMU) Tick() {}
-
 func NewMMU(bootRomPath, cartridgePath string) *MMU {
 	return &MMU{
 		bootRomPath: bootRomPath,

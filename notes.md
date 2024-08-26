@@ -30,8 +30,8 @@ Goal: Get the Nintendo logo up and running.
 
 ```
 // Mapping between opcode and function implementation
-op[256] = []func{}
-prefixOp[256] = []func{}
+op [256]func() int
+prefixOp [256]func() int
 
 // Declaration
 type inc8 func(*byte) int

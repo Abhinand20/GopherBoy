@@ -45,15 +45,6 @@ var CBOpcodeCycles = []Cycles{
 	2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, // F
 } //0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
 
-
-// TODO(abhi): Implement
-func (cpu *CPU) setZeroFlag() {
-}
-
-// TODO(abhi): Implement
-func (cpu *CPU) resetZeroFlag() {
-}
-
 // Implements common XOR operations and sets register value using the provided function.
 func (cpu *CPU) instrXOR(val byte) {
 	a := cpu.AF.Hi()

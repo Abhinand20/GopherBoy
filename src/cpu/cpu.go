@@ -107,7 +107,6 @@ func (cpu *CPU) setC(on bool) {
 	cpu.setFlag(C_IDX, on)
 }
 
-
 func (cpu *CPU) Init() error {
 	// TODO(abhinandj): Update the mapping from opcode to instructions
 	cpu.PC = 0

@@ -1,2 +1,4 @@
 roms/*
 *.bin
+*.txt
+*.json

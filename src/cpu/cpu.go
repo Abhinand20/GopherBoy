@@ -1,6 +1,7 @@
 package cpu
 
 import (
+	"fmt"
 	"gopherboy/common"
 	"gopherboy/mmu"
 	"log"
@@ -66,6 +67,7 @@ type CPU struct {
 	PC uint16
 	// Initialized to 0xFFFE, but usually overriden by program
 	SP Register
+	debug bool
 }
 
 // Read the following byte from PC and advance the pointer.
@@ -108,6 +110,30 @@ func (cpu *CPU) setC(on bool) {
 	cpu.setFlag(C_IDX, on)
 }
 
+func (cpu *CPU) testZ() bool {
+	return common.TestBitAtIndex(cpu.AF.Lo(), Z_IDX)
+}
+
+func (cpu *CPU) printRegisterDump() {
+	out := fmt.Sprintf(
+		"B: %#4x\tC: %#4x\nD: %#4x\tE: %#4x\nH: %#4x\tL: %#4x\nA: %#4x\n",
+		cpu.BC.Hi(),
+		cpu.BC.Lo(),
+		cpu.DE.Hi(),
+		cpu.DE.Lo(),
+		cpu.HL.Hi(),
+		cpu.HL.Lo(),
+		cpu.AF.Hi(),
+	)
+	reserved := fmt.Sprintf(
+		"PC: %#4x\tSP: %x\n",
+		cpu.PC,
+		cpu.SP.Value(),
+	)
+	fmt.Printf("[REGISTERS]\n%s%s",out, reserved)
+}
+
+
 func (cpu *CPU) Init() error {
 	// TODO(abhinandj): Update the mapping from opcode to instructions
 	cpu.PC = 0
@@ -121,20 +147,25 @@ func (cpu *CPU) Tick() Cycles {
 	addr := cpu.PC
 	opcode := cpu.popPC8()
 	opcodeStr := common.InstrDebugLookup[opcode]
-	if opcode != 0xCB {
-		log.Printf("%#4x %#2x\t%s\n", addr, opcode, opcodeStr)
-		instructions[opcode](cpu)
-		return OpcodeCycles[opcode] * 4
+	instructionMapping := instructions
+	opcodeCyclesMapping := OpcodeCycles
+	if opcode == 0xCB {
+		addr = cpu.PC
+		opcode = cpu.popPC8()
+		opcodeStr = common.PrefixInstrDebugLookup[opcode]
+		instructionMapping = cbInstructions
+		opcodeCyclesMapping = CBOpcodeCycles
 	}
-	addr = cpu.PC
-	opcode = cpu.popPC8()
-	opcodeStr = common.PrefixInstrDebugLookup[opcode]
 	log.Printf("%#4x %#2x\t%s\n", addr, opcode, opcodeStr)
-	cbInstructions[opcode](cpu)
-	return CBOpcodeCycles[opcode] * 4
+	instructionMapping[opcode](cpu)
+	cycles := opcodeCyclesMapping[opcode] * 4
+	if cpu.debug {
+		cpu.printRegisterDump()
+	}
+	return cycles
 }
 
 
-func NewCPU(bootRomPath, cartridgePath string) *CPU {
-	return &CPU{MMU: mmu.NewMMU(bootRomPath, cartridgePath)}
+func NewCPU(bootRomPath, cartridgePath string, debug bool) *CPU {
+	return &CPU{MMU: mmu.NewMMU(bootRomPath, cartridgePath), debug: debug}
 }

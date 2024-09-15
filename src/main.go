@@ -9,12 +9,17 @@ import (
 
 var bootRom string
 var cartridge string
+var debug bool
 
 func main() {
 	flag.StringVar(&bootRom, "boot_rom", "../roms/dmg_boot.bin", "The path for the boot rom binary.")
 	flag.StringVar(&cartridge, "cartridge", "../roms/dmg_boot.bin", "The path for dmg game cartridge.")
-
-	mb := motherboard.NewMotherboard(bootRom, cartridge)
+	flag.BoolVar(&debug, "debug", false, "Whether to print debug logs or not.")
+	
+	flag.Parse()
+	
+	fmt.Printf("Debug: %v\n", debug)
+	mb := motherboard.NewMotherboard(bootRom, cartridge, debug)
 	if err := mb.Init(); err != nil {
 		fmt.Printf("%v\n", err)
 		os.Exit(1)

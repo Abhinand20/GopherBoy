@@ -309,7 +309,7 @@ var InstrDebugLookup = [0x100]string {
 	0x1F: "RRA ",
 	0x20: "JR NZ,e8",
 	0x21: "LD HL,n16",
-	0x22: "LD [HL],A",
+	0x22: "LDI [HL],A",
 	0x23: "INC HL",
 	0x24: "INC H",
 	0x25: "DEC H",
@@ -317,7 +317,7 @@ var InstrDebugLookup = [0x100]string {
 	0x27: "DAA ",
 	0x28: "JR Z,e8",
 	0x29: "ADD HL,HL",
-	0x2A: "LD A,[HL]",
+	0x2A: "LDI A,[HL]",
 	0x2B: "DEC HL",
 	0x2C: "INC L",
 	0x2D: "DEC L",
@@ -325,7 +325,7 @@ var InstrDebugLookup = [0x100]string {
 	0x2F: "CPL ",
 	0x30: "JR NC,e8",
 	0x31: "LD SP,n16",
-	0x32: "LD [HL],A",
+	0x32: "LDD [HL],A",
 	0x33: "INC SP",
 	0x34: "INC [HL]",
 	0x35: "DEC [HL]",
@@ -333,7 +333,7 @@ var InstrDebugLookup = [0x100]string {
 	0x37: "SCF ",
 	0x38: "JR C,e8",
 	0x39: "ADD HL,SP",
-	0x3A: "LD A,[HL]",
+	0x3A: "LDD A,[HL]",
 	0x3B: "DEC SP",
 	0x3C: "INC A",
 	0x3D: "DEC A",
@@ -523,7 +523,7 @@ var InstrDebugLookup = [0x100]string {
 	0xF5: "PUSH AF",
 	0xF6: "OR A,n8",
 	0xF7: "RST $30",
-	0xF8: "LD HL,SP,e8",
+	0xF8: "LDI HL,SP,e8",
 	0xF9: "LD SP,HL",
 	0xFA: "LD A,[a16]",
 	0xFB: "EI ",
@@ -542,4 +542,8 @@ func SetBitAtIndex(r, i byte) byte {
 func ResetBitAtIndex(r, i byte) byte {
 	var mask byte = 1 << i
 	return r & ^mask
+}
+
+func TestBitAtIndex(r, i byte) bool {
+	return (r >> i) & 1 == 1
 }

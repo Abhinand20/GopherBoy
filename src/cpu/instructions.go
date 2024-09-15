@@ -1,6 +1,7 @@
 package cpu
 
 import (
+	"gopherboy/common"
 	"log"
 	"os"
 )
@@ -114,6 +115,17 @@ var instructions = [0x100]func(cpu *CPU) {
 		cpu.instrLDn8(cpu.HL.Value(), cpu.AF.Hi())
 		cpu.instrINCr16(&cpu.HL)
 	},
+	0x20: nil,
+	// 0x20: func(cpu *CPU) {
+	// 	// JR NZ, e8
+	// 	if cpu.testZ() {
+	// 		log.Printf("Took jump\n")
+	// 		offset := int8(cpu.popPC8())
+	// 		currAddr := int16(cpu.PC)
+	// 		cpu.PC = uint16(currAddr + int16(offset))
+	// 		log.Printf("Now at %x", cpu.PC)
+	// 	}
+	// },
 	0x32: func(cpu *CPU) {
 		// LD [HLD], A
 		cpu.instrLDn8(cpu.HL.Value(), cpu.AF.Hi())
@@ -905,12 +917,13 @@ var cbInstructions = [0x100]func(cpu *CPU) {
 		// BIT 7,E
 	},
 	*/
-	0x7C: nil,
-	/*
 	0x7C: func(cpu *CPU) {
 		// BIT 7,H
+		on := common.TestBitAtIndex(cpu.HL.Hi(), 7)
+		cpu.setZ(!on)
+		cpu.setN(false)
+		cpu.setH(true)
 	},
-	*/
 	0x7D: nil,
 	/*
 	0x7D: func(cpu *CPU) {

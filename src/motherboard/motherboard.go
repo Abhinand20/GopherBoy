@@ -12,10 +12,11 @@ type Motherboard struct {
 	CPU *cpu.CPU
 	// TODO(abhinandj): Add display
 	masterClk *time.Ticker
+	debug bool
 }
 
-func NewMotherboard(bootRomPath, cartridgePath string) (*Motherboard) {
-	return &Motherboard{CPU: cpu.NewCPU(bootRomPath, cartridgePath)}
+func NewMotherboard(bootRomPath, cartridgePath string, debug bool) (*Motherboard) {
+	return &Motherboard{CPU: cpu.NewCPU(bootRomPath, cartridgePath, debug), debug: debug}
 }
 
 func (mb *Motherboard) Init() error {

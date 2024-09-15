@@ -7,6 +7,15 @@ import (
 
 type Cycles common.Cycles
 
+// Flag bit indexes within the F register.
+const (
+	Z_IDX uint8 = 7
+	N_IDX uint8 = 6
+	H_IDX uint8 = 5
+	C_IDX uint8 = 4
+)
+
+
 type Register struct {
 	value uint16
 	// Used to reset the 'F' register after operations.
@@ -19,6 +28,10 @@ func (r *Register) Lo() byte {
 
 func (r *Register) Hi() byte {
 	return byte(r.value >> 8)
+}
+
+func (r *Register) Value() uint16 {
+	return r.value
 }
 
 func (r *Register) SetLo(b byte) {
@@ -70,9 +83,35 @@ func (cpu *CPU) popPC16() uint16 {
 }
 
 
+func (cpu *CPU) setFlag(index uint8, on bool) {
+	flags := cpu.AF.Lo()
+	if on {
+		cpu.AF.SetLo(common.SetBitAtIndex(flags, index))
+		return
+	}
+	cpu.AF.SetLo(common.ResetBitAtIndex(flags, index))
+}
+
+func (cpu *CPU) setZ(on bool) {
+	cpu.setFlag(Z_IDX, on)
+}
+
+func (cpu *CPU) setN(on bool) {
+	cpu.setFlag(N_IDX, on)
+}
+
+func (cpu *CPU) setH(on bool) {
+	cpu.setFlag(H_IDX, on)
+}
+func (cpu *CPU) setC(on bool) {
+	cpu.setFlag(C_IDX, on)
+}
+
+
 func (cpu *CPU) Init() error {
 	// TODO(abhinandj): Update the mapping from opcode to instructions
 	cpu.PC = 0
+	// Only the upper 4 bits of the F register are in-use.
 	cpu.AF.mask = 0xFFF0
 	return cpu.MMU.Init()
 }

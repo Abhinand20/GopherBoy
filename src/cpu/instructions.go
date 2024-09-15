@@ -54,11 +54,72 @@ func (cpu *CPU) setZeroFlag() {
 func (cpu *CPU) resetZeroFlag() {
 }
 
+// Implements common XOR operations and sets register value using the provided function.
+func (cpu *CPU) instrXOR(val byte) {
+	a := cpu.AF.Hi()
+	a ^= val
+	cpu.AF.SetHi(a)
+	cpu.setZ(a == 0)
+	cpu.setN(false)
+	cpu.setH(false)
+	cpu.setC(false)
+}
+
+
 /* opcodes to function mappings */
 var instructions = [0x100]func(cpu *CPU) {
+	0x01: func(cpu *CPU) {
+		// LD BC,n16
+		val := cpu.popPC16()
+		cpu.BC.Set(val)
+	},
+	0x11: func(cpu *CPU) {
+		// LD DE,n16
+		val := cpu.popPC16()
+		cpu.DE.Set(val)
+	},
+	0x21: func(cpu *CPU) {
+		// LD HL,n16
+		val := cpu.popPC16()
+		cpu.HL.Set(val)
+	},
 	0x31: func(cpu *CPU) {
+		// LD SP,n16
 		val := cpu.popPC16()
 		cpu.SP.Set(val)
+	},
+	0xA8: func(cpu *CPU) {
+		// XOR B
+		cpu.instrXOR(cpu.BC.Hi())
+	},
+	0xA9: func(cpu *CPU) {
+		// XOR C
+		cpu.instrXOR(cpu.BC.Lo())
+	},
+	0xAA: func(cpu *CPU) {
+		// XOR D 
+		cpu.instrXOR(cpu.DE.Hi())
+	},
+	0xAB: func(cpu *CPU) {
+		// XOR E
+		cpu.instrXOR(cpu.DE.Lo())
+	},
+	0xAC: func(cpu *CPU) {
+		// XOR H
+		cpu.instrXOR(cpu.HL.Hi())
+	},
+	0xAD: func(cpu *CPU) {
+		// XOR L
+		cpu.instrXOR(cpu.HL.Lo())
+	},
+	0xAE: func(cpu *CPU) {
+		// XOR [HL] 
+		val := cpu.MMU.ReadAt(cpu.HL.Value())
+		cpu.instrXOR(val)
+	},
+	0xAF: func(cpu *CPU) {
+		// XOR A,A
+		cpu.instrXOR(cpu.AF.Hi())
 	},
 }
 

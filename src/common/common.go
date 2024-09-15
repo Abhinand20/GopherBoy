@@ -16,10 +16,10 @@ type Cycles uint8
 
 /* Bit operations */
 func SetBitAtIndex(r, i byte) byte {
-	var mask byte = 1 << (7 - i)
+	var mask byte = 1 << i
 	return r | mask
 }
 func ResetBitAtIndex(r, i byte) byte {
-	var mask byte = 1 << (7 - i)
+	var mask byte = 1 << i
 	return r & ^mask
 }

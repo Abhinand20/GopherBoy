@@ -1,6 +1,7 @@
 package cpu
 
 import (
+	"fmt"
 	"gopherboy/common"
 	"log"
 	"os"
@@ -99,6 +100,7 @@ var instructions = [0x100]func(cpu *CPU) {
 	0x31: func(cpu *CPU) {
 		// LD SP,n16
 		val := cpu.popPC16()
+		fmt.Printf("%#4x\n",val)
 		cpu.SP.Set(val)
 	},
 	/* LD 8-bit */

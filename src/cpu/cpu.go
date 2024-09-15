@@ -45,7 +45,7 @@ func (r *Register) SetHi(b byte) {
 	r.applyMask()
 }
 
-func (r Register) Set(v uint16) {
+func (r *Register) Set(v uint16) {
 	r.value = v
 	r.applyMask()
 }
@@ -79,10 +79,9 @@ func (cpu *CPU) popPC8() byte {
 
 // Read the following 16bits from PC and advance the pointer.
 func (cpu *CPU) popPC16() uint16 {
-	val := uint16(cpu.popPC8())
-	val <<= 8
-	val |= uint16(cpu.popPC8())
-	return val
+	b1 := uint16(cpu.popPC8())
+	b2 := uint16(cpu.popPC8())
+	return b2 << 8 | b1
 }
 
 
@@ -128,7 +127,7 @@ func (cpu *CPU) printRegisterDump() {
 	reserved := fmt.Sprintf(
 		"PC: %#4x\tSP: %x\n",
 		cpu.PC,
-		cpu.SP.Value(),
+		cpu.SP.value,
 	)
 	fmt.Printf("[REGISTERS]\n%s%s",out, reserved)
 }

@@ -1701,7 +1701,7 @@ var cbInstructions = [0x100]func(cpu *CPU) {
 }
 
 func init() {
-	for k, _ := range instructions {
+	for k := range instructions {
 		if instructions[k] == nil {
 			instructions[k] = func(cpu *CPU) {
 				log.Printf("Unimplemented opcode: %#2x", k)

@@ -55,9 +55,7 @@ func (cpu *CPU) resetZeroFlag() {
 }
 
 /* opcodes to function mappings */
-var instructions = [0x100]func(cpu *CPU) {
-	0x31: nil,
-}
+var instructions = [0x100]func(cpu *CPU) {}
 
 
 func init() {

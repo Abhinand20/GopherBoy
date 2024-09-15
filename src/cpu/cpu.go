@@ -120,14 +120,16 @@ func (cpu *CPU) Init() error {
 func (cpu *CPU) Tick() Cycles {
 	addr := cpu.PC
 	opcode := cpu.popPC8()
+	opcodeStr := common.InstrDebugLookup[opcode]
 	if opcode != 0xCB {
-		log.Printf("%#4x  %#2x", addr, opcode)
+		log.Printf("%#4x %#2x\t%s\n", addr, opcode, opcodeStr)
 		instructions[opcode](cpu)
 		return OpcodeCycles[opcode] * 4
 	}
 	addr = cpu.PC
 	opcode = cpu.popPC8()
-	log.Printf("[CB Prefix] %#4x  %#2x", addr, opcode)
+	opcodeStr = common.PrefixInstrDebugLookup[opcode]
+	log.Printf("%#4x %#2x\t%s\n", addr, opcode, opcodeStr)
 	cbInstructions[opcode](cpu)
 	return CBOpcodeCycles[opcode] * 4
 }

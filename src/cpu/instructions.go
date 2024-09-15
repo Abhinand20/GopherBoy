@@ -109,8 +109,13 @@ var instructions = [0x100]func(cpu *CPU) {
 		cpu.instrXOR(val)
 	},
 	0xAF: func(cpu *CPU) {
-		// XOR A,A
+		// XOR A
 		cpu.instrXOR(cpu.AF.Hi())
+	},
+	0xEE: func(cpu *CPU) {
+		// XOR n8
+		n8 := cpu.popPC8()
+		cpu.instrXOR(n8)
 	},
 }
 

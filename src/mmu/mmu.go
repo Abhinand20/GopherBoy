@@ -21,8 +21,11 @@ func (mmu *MMU) Init() error {
 	}
 	n := copy(mmu.memory[:], boot)
 	fmt.Printf("Copied boot rom into memory: %d bytes\n", n)
-	// TODO(abhinandj): Store the cartridge ROM into memory.
 	return nil
+}
+
+func (mmu *MMU) ReadAt(addr uint16) byte {
+	return mmu.memory[addr]
 }
 
 

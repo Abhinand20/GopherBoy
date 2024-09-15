@@ -1,9 +1,12 @@
 package cpu
 
-import "log"
+import (
+	"log"
+	"os"
+)
 
 // OpcodeCycles is the number of cpu cycles for each normal opcode.
-var OpcodeCycles = []int{
+var OpcodeCycles = []Cycles{
 	1, 3, 2, 2, 1, 1, 2, 1, 5, 2, 2, 2, 1, 1, 2, 1, // 0
 	0, 3, 2, 2, 1, 1, 2, 1, 3, 2, 2, 2, 1, 1, 2, 1, // 1
 	2, 3, 2, 2, 1, 1, 2, 1, 2, 2, 2, 2, 1, 1, 2, 1, // 2
@@ -23,7 +26,7 @@ var OpcodeCycles = []int{
 } //0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
 
 // CBOpcodeCycles is the number of cpu cycles for each CB opcode.
-var CBOpcodeCycles = []int{
+var CBOpcodeCycles = []Cycles{
 	2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, // 0
 	2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, // 1
 	2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, // 2
@@ -52,7 +55,7 @@ func (cpu *CPU) resetZeroFlag() {
 }
 
 /* opcodes to function mappings */
-var instructions = [0x100]func() {
+var instructions = [0x100]func(cpu *CPU) {
 	0x31: nil,
 }
 
@@ -60,8 +63,10 @@ var instructions = [0x100]func() {
 func init() {
 	for k, v := range instructions {
 		if v == nil {
-			instructions[k] = func() {
+			instructions[k] = func(cpu *CPU) {
 				log.Printf("Unimplemented opcode: %#2x", k)
+				// TODO(abhi): replace this once debugger is implemented.
+				os.Exit(1)
 			}
 		}
 	}

@@ -34,10 +34,7 @@ func (mb *Motherboard) Emulate() error {
 	totalCycles := 0
 	for {
 		<- mb.masterClk.C
-		elapsedCycles, err := mb.CPU.Tick()
-		if err != nil {
-			return err
-		}
+		elapsedCycles := mb.CPU.Tick()
 		totalCycles += int(elapsedCycles)
 	}
 }

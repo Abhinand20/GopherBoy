@@ -62,7 +62,12 @@ func (cpu *CPU) Init() error {
 }
 
 // TODO: Emulate a single CPU tick, return number of instruction cycles elapsed.
-func (cpu *CPU) Tick() (Cycles, error) { return 1, nil }
+func (cpu *CPU) Tick() Cycles {
+	opcode := cpu.MMU.ReadAt(cpu.PC)
+	instructions[opcode](cpu)
+	cpu.PC += 2
+	return OpcodeCycles[opcode]
+}
 
 
 func NewCPU(bootRomPath, cartridgePath string) *CPU {

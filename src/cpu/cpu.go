@@ -112,6 +112,15 @@ func (cpu *CPU) setC(on bool) {
 func (cpu *CPU) testZ() bool {
 	return common.TestBitAtIndex(cpu.AF.Lo(), Z_IDX)
 }
+func (cpu *CPU) testC() bool {
+	return common.TestBitAtIndex(cpu.AF.Lo(), C_IDX)
+}
+func (cpu *CPU) testN() bool {
+	return common.TestBitAtIndex(cpu.AF.Lo(), N_IDX)
+}
+func (cpu *CPU) testH() bool {
+	return common.TestBitAtIndex(cpu.AF.Lo(), H_IDX)
+}
 
 func (cpu *CPU) printRegisterDump() {
 	out := fmt.Sprintf(
@@ -129,7 +138,14 @@ func (cpu *CPU) printRegisterDump() {
 		cpu.PC,
 		cpu.SP.value,
 	)
-	fmt.Printf("[REGISTERS]\n%s%s",out, reserved)
+	flags := fmt.Sprintf(
+		"Z: %v\tC: %v\tN: %v\tH :%v\n",
+		cpu.testZ(),
+		cpu.testC(),
+		cpu.testN(),
+		cpu.testH(),
+	)
+	fmt.Printf("[REGISTERS]\n%s%s[FLAGS]\n%s",out, reserved, flags)
 }
 
 

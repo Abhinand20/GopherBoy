@@ -55,7 +55,12 @@ func (cpu *CPU) resetZeroFlag() {
 }
 
 /* opcodes to function mappings */
-var instructions = [0x100]func(cpu *CPU) {}
+var instructions = [0x100]func(cpu *CPU) {
+	0x31: func(cpu *CPU) {
+		val := cpu.popPC16()
+		cpu.SP.Set(val)
+	},
+}
 
 
 func init() {

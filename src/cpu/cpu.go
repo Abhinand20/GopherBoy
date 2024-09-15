@@ -54,6 +54,22 @@ type CPU struct {
 	SP Register
 }
 
+// Read the following byte from PC and advance the pointer.
+func (cpu *CPU) popPC8() byte {
+	val := cpu.MMU.ReadAt(cpu.PC)
+	cpu.PC += 1
+	return val
+}
+
+// Read the following 16bits from PC and advance the pointer.
+func (cpu *CPU) popPC16() uint16 {
+	val := uint16(cpu.popPC8())
+	val <<= 8
+	val |= uint16(cpu.popPC8())
+	return val
+}
+
+
 func (cpu *CPU) Init() error {
 	// TODO(abhinandj): Update the mapping from opcode to instructions
 	cpu.PC = 0
@@ -63,9 +79,8 @@ func (cpu *CPU) Init() error {
 
 // TODO: Emulate a single CPU tick, return number of instruction cycles elapsed.
 func (cpu *CPU) Tick() Cycles {
-	opcode := cpu.MMU.ReadAt(cpu.PC)
+	opcode := cpu.popPC8()
 	instructions[opcode](cpu)
-	cpu.PC += 2
 	return OpcodeCycles[opcode]
 }
 

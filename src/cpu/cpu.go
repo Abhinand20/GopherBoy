@@ -3,6 +3,7 @@ package cpu
 import (
 	"gopherboy/common"
 	"gopherboy/mmu"
+	"log"
 )
 
 type Cycles common.Cycles
@@ -117,9 +118,18 @@ func (cpu *CPU) Init() error {
 
 // TODO: Emulate a single CPU tick, return number of instruction cycles elapsed.
 func (cpu *CPU) Tick() Cycles {
+	addr := cpu.PC
 	opcode := cpu.popPC8()
-	instructions[opcode](cpu)
-	return OpcodeCycles[opcode]
+	if opcode != 0xCB {
+		log.Printf("%#4x  %#2x", addr, opcode)
+		instructions[opcode](cpu)
+		return OpcodeCycles[opcode] * 4
+	}
+	addr = cpu.PC
+	opcode = cpu.popPC8()
+	log.Printf("[CB Prefix] %#4x  %#2x", addr, opcode)
+	cbInstructions[opcode](cpu)
+	return CBOpcodeCycles[opcode] * 4
 }
 
 

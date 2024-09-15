@@ -28,6 +28,10 @@ func (mmu *MMU) ReadAt(addr uint16) byte {
 	return mmu.memory[addr]
 }
 
+func (mmu *MMU) WriteAt(addr uint16, val byte) {
+	mmu.memory[addr] = val
+}
+
 
 func NewMMU(bootRomPath, cartridgePath string) *MMU {
 	return &MMU{

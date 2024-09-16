@@ -145,7 +145,7 @@ func (cpu *CPU) printRegisterDump() {
 		cpu.testN(),
 		cpu.testH(),
 	)
-	fmt.Printf("[REGISTERS]\n%s%s[FLAGS]\n%s",out, reserved, flags)
+	fmt.Printf("[REGISTERS]\n%s%s[FLAGS]\n%s\n",out, reserved, flags)
 }
 
 

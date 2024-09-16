@@ -115,17 +115,16 @@ var instructions = [0x100]func(cpu *CPU) {
 		cpu.instrLDn8(cpu.HL.Value(), cpu.AF.Hi())
 		cpu.instrINCr16(&cpu.HL)
 	},
-	0x20: nil,
-	// 0x20: func(cpu *CPU) {
-	// 	// JR NZ, e8
-	// 	if cpu.testZ() {
-	// 		log.Printf("Took jump\n")
-	// 		offset := int8(cpu.popPC8())
-	// 		currAddr := int16(cpu.PC)
-	// 		cpu.PC = uint16(currAddr + int16(offset))
-	// 		log.Printf("Now at %x", cpu.PC)
-	// 	}
-	// },
+	0x20: func(cpu *CPU) {
+		// JR NZ, e8
+		if !cpu.testZ() {
+			offset := int8(cpu.popPC8())
+			currAddr := int16(cpu.PC)
+			cpu.PC = uint16(currAddr + int16(offset))
+			return
+		}
+		cpu.popPC8()
+	},
 	0x32: func(cpu *CPU) {
 		// LD [HLD], A
 		cpu.instrLDn8(cpu.HL.Value(), cpu.AF.Hi())

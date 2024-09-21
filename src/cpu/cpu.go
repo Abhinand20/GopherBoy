@@ -161,6 +161,7 @@ func (cpu *CPU) Init() error {
 func (cpu *CPU) Tick() Cycles {
 	addr := cpu.PC
 	opcode := cpu.popPC8()
+	// TODO: Print the exact value instead of n8, e8 etc.
 	opcodeStr := common.InstrDebugLookup[opcode]
 	instructionMapping := instructions
 	opcodeCyclesMapping := OpcodeCycles

@@ -547,3 +547,12 @@ func ResetBitAtIndex(r, i byte) byte {
 func TestBitAtIndex(r, i byte) bool {
 	return (r >> i) & 1 == 1
 }
+
+func IsHalfCarry(val1, val2 byte) bool {
+	return (val1&0xF + val2&0xF) > 0xF
+}
+
+// Returns whether val1 - val2 will result in half-borrow.
+func IsHalfBorrow(val1, val2 byte) bool {
+	return val1&0xF < val2&0xF
+}

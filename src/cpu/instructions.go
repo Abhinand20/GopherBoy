@@ -72,8 +72,20 @@ func (cpu *CPU) instrLDn8(dest uint16, src byte) {
 
 // Push an 8-bit value onto the stack
 func (cpu *CPU) instrPushSPn8(val byte) {
-	cpu.instrLDn8(cpu.SP.Value(), val)
 	cpu.instrDECr16(&cpu.SP)
+	cpu.instrLDn8(cpu.SP.Value(), val)
+}
+
+// Push a 16-bit register onto the stack
+func (cpu *CPU) instrPushSPr16(r *Register) {
+	cpu.instrPushSPn8(r.Hi())
+	cpu.instrPushSPn8(r.Lo())
+}
+
+// Pop a byte from stack
+func (cpu *CPU) instrPopSPn8() byte {
+	defer cpu.instrINCr16(&cpu.SP)
+	return cpu.MMU.ReadAt(cpu.SP.Value())
 }
 
 // Push a 16-bit value onto the stack
@@ -82,6 +94,11 @@ func (cpu *CPU) instrPushSPn16(val uint16) {
 	lowerByte := byte(val & 0xFF)
 	cpu.instrPushSPn8(upperByte)
 	cpu.instrPushSPn8(lowerByte)
+}
+
+func (cpu *CPU) instrPopSPr16(r *Register) {
+	r.SetLo(cpu.instrPopSPn8())
+	r.SetHi(cpu.instrPopSPn8())
 }
 
 /* opcodes to function mappings */
@@ -189,6 +206,12 @@ var instructions = [0x100]func(cpu *CPU) {
 		// LD C, A
 		cpu.BC.SetLo(cpu.AF.Hi())
 	},
+	/* LD r8,n8 */
+	0x06: func(cpu *CPU) {
+		// LD B, n8
+		val := cpu.popPC8()
+		cpu.BC.SetHi(val)
+	},
 	/* LD to HRAM */
 	0xE0: func(cpu *CPU) {
 		// LD [0xFFOO + n8], A
@@ -240,6 +263,37 @@ var instructions = [0x100]func(cpu *CPU) {
 		cpu.instrPushSPn16(addr)
 		cpu.PC = addr
 	},
+	/* Stack operations */
+	0xC5: func(cpu *CPU) {
+		// PUSH BC
+		cpu.instrPushSPr16(&cpu.BC)
+	},
+	0xC1: func(cpu *CPU) {
+		// POP BC
+		cpu.instrPopSPr16(&cpu.BC)
+	},
+	0xD5: func(cpu *CPU) {
+		// PUSH DE
+		cpu.instrPushSPr16(&cpu.DE)
+	},
+	0xD1: func(cpu *CPU) {
+		// POP DE
+		cpu.instrPopSPr16(&cpu.DE)
+	},
+	0xE5: func(cpu *CPU) {
+		// PUSH HL
+		cpu.instrPushSPr16(&cpu.HL)
+	},
+	0xE1: func(cpu *CPU) {
+		// POP HL
+		cpu.instrPopSPr16(&cpu.HL)
+	},
+	// 0xF5: func(cpu *CPU) {
+	// 	// PUSH AF
+	// },
+	// 0xF1: func(cpu *CPU) {
+	// 	// POP AF
+	// },
 	/* INC */
 	0x0C: func(cpu *CPU) {
 		// INC C

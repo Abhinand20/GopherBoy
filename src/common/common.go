@@ -9,7 +9,7 @@ Common functions and types for the following -
 */
 
 const (
-	ClkFrequency = 4120000 // ~4.12 Mhz
+	ClkFrequency = 4194304 // ~4.12 Mhz
 )
 // Cycles represents the number of "machine cycles"
 type Cycles uint8

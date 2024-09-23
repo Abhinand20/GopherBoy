@@ -101,6 +101,12 @@ func (cpu *CPU) instrPopSPr16(r *Register) {
 	r.SetHi(cpu.instrPopSPn8())
 }
 
+func (cpu *CPU) instrPopSPr16PC() {
+	valLo := cpu.instrPopSPn8()
+	valHi := cpu.instrPopSPn8()
+	cpu.PC = uint16(valHi) << 8 | uint16(valLo)
+}
+
 /* opcodes to function mappings */
 var instructions = [0x100]func(cpu *CPU) {
 	/* LD */
@@ -259,9 +265,9 @@ var instructions = [0x100]func(cpu *CPU) {
 	/* Jumps and Sub-routines */
 	0xCD: func(cpu *CPU) {
 		// CALL a16
-		addr := cpu.popPC16()
-		cpu.instrPushSPn16(addr)
-		cpu.PC = addr
+		addrJP := cpu.popPC16()
+		cpu.instrPushSPn16(cpu.PC)
+		cpu.PC = addrJP
 	},
 	/* Stack operations */
 	0xC5: func(cpu *CPU) {
@@ -403,6 +409,10 @@ var instructions = [0x100]func(cpu *CPU) {
 		// RLCA
 		cpu.instrRLC(cpu.AF.SetHi, cpu.AF.Hi())
 		cpu.setZ(false)
+	},
+	0xC9: func(cpu *CPU) {
+		// RET
+		cpu.instrPopSPr16PC()
 	},
 }
 

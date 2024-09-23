@@ -354,6 +354,17 @@ var instructions = [0x100]func(cpu *CPU) {
 		n8 := cpu.popPC8()
 		cpu.instrXOR(n8)
 	},
+	/* BIT shift */
+	0x07: func(cpu *CPU) {
+		// RLA
+		cpu.instrRL(cpu.AF.SetHi, cpu.AF.Hi())
+		cpu.setZ(false)
+	},
+	0x17: func(cpu *CPU) {
+		// RLCA
+		cpu.instrRLC(cpu.AF.SetHi, cpu.AF.Hi())
+		cpu.setZ(false)
+	},
 }
 
 

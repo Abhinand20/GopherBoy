@@ -556,3 +556,10 @@ func IsHalfCarry(val1, val2 byte) bool {
 func IsHalfBorrow(val1, val2 byte) bool {
 	return val1&0xF < val2&0xF
 }
+
+func BoolToByte(v bool) byte {
+	if v {
+		return 1
+	}
+	return 0
+}

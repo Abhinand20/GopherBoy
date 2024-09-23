@@ -156,6 +156,39 @@ var instructions = [0x100]func(cpu *CPU) {
 		val := cpu.popPC8()
 		cpu.AF.SetHi(val)
 	},
+	/* LD to r8,r8 */
+	0x48: func(cpu *CPU) {
+		// LD C, B
+		cpu.BC.SetLo(cpu.BC.Hi())
+	},
+	0x49: func(cpu *CPU) {
+		// LD C, C 
+		cpu.BC.SetLo(cpu.BC.Lo())
+	},
+	0x4A: func(cpu *CPU) {
+		// LD C, D
+		cpu.BC.SetLo(cpu.DE.Hi())
+	},
+	0x4B: func(cpu *CPU) {
+		// LD C, E
+		cpu.BC.SetLo(cpu.DE.Lo())
+	},
+	0x4C: func(cpu *CPU) {
+		// LD C, H
+		cpu.BC.SetLo(cpu.HL.Hi())
+	},
+	0x4D: func(cpu *CPU) {
+		// LD C, L
+		cpu.BC.SetLo(cpu.HL.Lo())
+	},
+	0x4E: func(cpu *CPU) {
+		// LD C, [HL]
+		cpu.BC.SetLo(cpu.MMU.ReadAt(cpu.HL.Value()))
+	},
+	0x4F: func(cpu *CPU) {
+		// LD C, A
+		cpu.BC.SetLo(cpu.AF.Hi())
+	},
 	/* LD to HRAM */
 	0xE0: func(cpu *CPU) {
 		// LD [0xFFOO + n8], A

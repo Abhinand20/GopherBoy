@@ -311,6 +311,45 @@ var instructions = [0x100]func(cpu *CPU) {
 		// INC A
 		cpu.instrINCr8(cpu.AF.SetHi, cpu.AF.Hi())
 	},
+	0x03: func(cpu *CPU) {
+		// INC BC
+		cpu.instrINCr16(&cpu.BC)
+	},
+	0x13: func(cpu *CPU) {
+		// INC DE
+		cpu.instrINCr16(&cpu.DE)
+	},
+	0x23: func(cpu *CPU) {
+		// INC HL
+		cpu.instrINCr16(&cpu.HL)
+	},
+	0x33: func(cpu *CPU) {
+		// INC SP
+		cpu.instrINCr16(&cpu.SP)
+	},
+	/* DEC */
+	0x05: func(cpu *CPU) {
+		// DEC B
+		cpu.instrDECr8(cpu.BC.SetHi, cpu.BC.Hi())
+	},
+	0x15: func(cpu *CPU) {
+		// DEC D
+		cpu.instrDECr8(cpu.DE.SetHi, cpu.DE.Hi())
+	},
+	0x25: func(cpu *CPU) {
+		// DEC H
+		cpu.instrDECr8(cpu.HL.SetHi, cpu.HL.Hi())
+	},
+	0x35: func(cpu *CPU) {
+		// DEC [HL]
+		val := cpu.MMU.ReadAt(cpu.HL.Value())
+		newVal := val - 1
+		cpu.MMU.WriteAt(cpu.HL.Value(), newVal)
+
+		cpu.setZ(newVal == 0)
+		cpu.setN(true)
+		cpu.setH(common.IsHalfBorrow(val, 1))
+	},
 	0x77: func(cpu *CPU) {
 		// LD [HL], A
 		cpu.instrLDn8(cpu.HL.Value(), cpu.AF.Hi())

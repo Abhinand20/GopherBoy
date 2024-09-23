@@ -66,16 +66,22 @@ func (cpu *CPU) instrDECr8(setFunc func(byte), val byte) {
 	cpu.setH(common.IsHalfBorrow(val, 1))
 }
 
-func (cpu *CPU) instrLDr8(setFunc func(byte), dest, src byte) {
-	
-}
-
-func (cpu *CPU) instrLDr16(setFunc func(uint16), dest, src uint16) {
-	
-}
-
 func (cpu *CPU) instrLDn8(dest uint16, src byte) {
 	cpu.MMU.WriteAt(dest, src)
+}
+
+// Push an 8-bit value onto the stack
+func (cpu *CPU) instrPushSPn8(val byte) {
+	cpu.instrLDn8(cpu.SP.Value(), val)
+	cpu.instrDECr16(&cpu.SP)
+}
+
+// Push a 16-bit value onto the stack
+func (cpu *CPU) instrPushSPn16(val uint16) {
+	upperByte := byte(val >> 8)
+	lowerByte := byte(val & 0xFF)
+	cpu.instrPushSPn8(upperByte)
+	cpu.instrPushSPn8(lowerByte)
 }
 
 /* opcodes to function mappings */
@@ -150,17 +156,57 @@ var instructions = [0x100]func(cpu *CPU) {
 		val := cpu.popPC8()
 		cpu.AF.SetHi(val)
 	},
+	/* LD to HRAM */
+	0xE0: func(cpu *CPU) {
+		// LD [0xFFOO + n8], A
+		destAddr := 0xFF00 + uint16(cpu.popPC8())
+		cpu.instrLDn8(destAddr, cpu.AF.Hi())
+	},
 	0xE2: func(cpu *CPU) {
 		// LD [0xFFOO + C], A
 		destAddr := 0xFF00 + uint16(cpu.BC.Lo())
 		cpu.instrLDn8(destAddr, cpu.AF.Hi())
+	},
+	0xF0: func(cpu *CPU) {
+		// LD A, [0xFFOO + n8]
+		srcAddr := 0xFF00 + uint16(cpu.popPC8())
+		cpu.AF.SetHi(cpu.MMU.ReadAt(srcAddr))
 	},
 	0xF2: func(cpu *CPU) {
 		// LD A, [0xFFOO + C]
 		srcAddr := 0xFF00 + uint16(cpu.BC.Lo())
 		cpu.AF.SetHi(cpu.MMU.ReadAt(srcAddr))
 	},
-	
+	/* LD A, [r16] */
+	0x0A: func(cpu *CPU) {
+		// LD A, [BC]
+		srcAddr := cpu.BC.Value()
+		cpu.AF.SetHi(cpu.MMU.ReadAt(srcAddr))
+	},
+	0x1A: func(cpu *CPU) {
+		// LD A, [DE]
+		srcAddr := cpu.DE.Value()
+		cpu.AF.SetHi(cpu.MMU.ReadAt(srcAddr))
+	},
+	0x2A: func(cpu *CPU) {
+		// LD A, [HL+]
+		srcAddr := cpu.HL.Value()
+		cpu.AF.SetHi(cpu.MMU.ReadAt(srcAddr))
+		cpu.instrINCr16(&cpu.HL)
+	},
+	0x3A: func(cpu *CPU) {
+		// LD A, [HL-]
+		srcAddr := cpu.DE.Value()
+		cpu.AF.SetHi(cpu.MMU.ReadAt(srcAddr))
+		cpu.instrDECr16(&cpu.HL)
+	},
+	/* Jumps and Sub-routines */
+	0xCD: func(cpu *CPU) {
+		// CALL a16
+		addr := cpu.popPC16()
+		cpu.instrPushSPn16(addr)
+		cpu.PC = addr
+	},
 	/* INC */
 	0x0C: func(cpu *CPU) {
 		// INC C

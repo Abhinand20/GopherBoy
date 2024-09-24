@@ -71,8 +71,18 @@ func (cpu *CPU) instrLDn8(dest uint16, src byte) {
 }
 
 // Common function for LD r8,r8
-func (cpu *CPU) instrLDr8r8(setFunc func(byte), val byte) {
+func (cpu *CPU) instrLDr8(setFunc func(byte), val byte) {
 	setFunc(val)
+}
+
+// Implement CP A,r8
+func (cpu *CPU) instrCPr8(val byte) {
+	a := cpu.AF.Hi()
+	
+	cpu.setZ(a == val)
+	cpu.setN(true)
+	cpu.setH(common.IsHalfBorrow(a, val))
+	cpu.setC(val > a)
 }
 
 // Push an 8-bit value onto the stack
@@ -396,35 +406,43 @@ func init() {
 		// LD r8,r8
 		instructions[0x40 + i] = func(cpu *CPU) {
 			params := buildCbInstrParams(cpu, i)
-			cpu.instrLDr8r8(cpu.BC.SetHi, params.val)
+			cpu.instrLDr8(cpu.BC.SetHi, params.val)
 		}
 		instructions[0x48 + i] = func(cpu *CPU) {
 			params := buildCbInstrParams(cpu, i)
-			cpu.instrLDr8r8(cpu.BC.SetLo, params.val)
+			cpu.instrLDr8(cpu.BC.SetLo, params.val)
 		}
 		instructions[0x50 + i] = func(cpu *CPU) {
 			params := buildCbInstrParams(cpu, i)
-			cpu.instrLDr8r8(cpu.DE.SetHi, params.val)
+			cpu.instrLDr8(cpu.DE.SetHi, params.val)
 		}
 		instructions[0x58 + i] = func(cpu *CPU) {
 			params := buildCbInstrParams(cpu, i)
-			cpu.instrLDr8r8(cpu.DE.SetLo, params.val)
+			cpu.instrLDr8(cpu.DE.SetLo, params.val)
 		}
 		instructions[0x60 + i] = func(cpu *CPU) {
 			params := buildCbInstrParams(cpu, i)
-			cpu.instrLDr8r8(cpu.HL.SetHi, params.val)
+			cpu.instrLDr8(cpu.HL.SetHi, params.val)
 		}
 		instructions[0x68 + i] = func(cpu *CPU) {
 			params := buildCbInstrParams(cpu, i)
-			cpu.instrLDr8r8(cpu.HL.SetLo, params.val)
+			cpu.instrLDr8(cpu.HL.SetLo, params.val)
 		}
-		instructions[0x70 + i] = func(cpu *CPU) {
-			params := buildCbInstrParams(cpu, i)
-			cpu.instrLDr8r8(func (v byte) {cpu.MMU.WriteAt(cpu.HL.Value(), v)}, params.val)
+		// Skip HALT instruction
+		if i != 6 {
+			instructions[0x70 + i] = func(cpu *CPU) {
+				params := buildCbInstrParams(cpu, i)
+				cpu.instrLDr8(func (v byte) {cpu.MMU.WriteAt(cpu.HL.Value(), v)}, params.val)
+			}
 		}
 		instructions[0x78 + i] = func(cpu *CPU) {
 			params := buildCbInstrParams(cpu, i)
-			cpu.instrLDr8r8(cpu.AF.SetHi, params.val)
+			cpu.instrLDr8(cpu.AF.SetHi, params.val)
+		}
+		// CP A,r8
+		instructions[0xB8 + i] = func(cpu *CPU) {
+			params := buildCbInstrParams(cpu, i)
+			cpu.instrCPr8(params.val)
 		}
 	}
 	for k := range instructions {

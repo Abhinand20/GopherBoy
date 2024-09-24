@@ -62,7 +62,7 @@ func (cpu *CPU) instrDECr8(setFunc func(byte), val byte) {
 	decVal := val - 1
 	setFunc(decVal)
 	cpu.setZ(decVal == 0)
-	cpu.setN(false)
+	cpu.setN(true)
 	cpu.setH(common.IsHalfBorrow(val, 1))
 }
 
@@ -83,6 +83,12 @@ func (cpu *CPU) instrCPr8(val byte) {
 	cpu.setN(true)
 	cpu.setH(common.IsHalfBorrow(a, val))
 	cpu.setC(val > a)
+}
+
+func (cpu *CPU) instrJR(offset byte) {
+	signedOffset := int8(offset)
+	currAddr := int16(cpu.PC)
+	cpu.PC = uint16(currAddr + int16(signedOffset))
 }
 
 // Push an 8-bit value onto the stack
@@ -159,12 +165,39 @@ var instructions = [0x100]func(cpu *CPU) {
 		cpu.instrLDn8(cpu.HL.Value(), cpu.AF.Hi())
 		cpu.instrINCr16(&cpu.HL)
 	},
+	/* JR */
+	0x18: func(cpu *CPU) {
+		// JR e8
+		cpu.instrJR(cpu.popPC8())
+	},
 	0x20: func(cpu *CPU) {
 		// JR NZ, e8
 		if !cpu.testZ() {
-			offset := int8(cpu.popPC8())
-			currAddr := int16(cpu.PC)
-			cpu.PC = uint16(currAddr + int16(offset))
+			cpu.instrJR(cpu.popPC8())
+			return
+		}
+		cpu.popPC8()
+	},
+	0x30: func(cpu *CPU) {
+		// JR NC, e8
+		if !cpu.testC() {
+			cpu.instrJR(cpu.popPC8())
+			return
+		}
+		cpu.popPC8()
+	},
+	0x28: func(cpu *CPU) {
+		// JR Z, e8
+		if cpu.testZ() {
+			cpu.instrJR(cpu.popPC8())
+			return
+		}
+		cpu.popPC8()
+	},
+	0x38: func(cpu *CPU) {
+		// JR C, e8
+		if cpu.testC() {
+			cpu.instrJR(cpu.popPC8())
 			return
 		}
 		cpu.popPC8()
@@ -221,6 +254,12 @@ var instructions = [0x100]func(cpu *CPU) {
 		srcAddr := 0xFF00 + uint16(cpu.BC.Lo())
 		cpu.AF.SetHi(cpu.MMU.ReadAt(srcAddr))
 	},
+	/* CP n8 */
+	0xFE: func(cpu *CPU) {
+		// CP n8
+		val := cpu.popPC8()
+		cpu.instrCPr8(val)
+	},
 	/* LD A, [r16] */
 	0x0A: func(cpu *CPU) {
 		// LD A, [BC]
@@ -272,6 +311,16 @@ var instructions = [0x100]func(cpu *CPU) {
 		// PUSH HL
 		cpu.instrPushSPr16(&cpu.HL)
 	},
+	0xEA: func(cpu *CPU) {
+		// LD [a16], A
+		cpu.instrLDn8(cpu.popPC16(), cpu.AF.Hi())
+
+	},
+	0xFA: func(cpu *CPU) {
+		// LD A, [a16]
+		srcAddr := cpu.popPC16()
+		cpu.AF.SetHi(cpu.MMU.ReadAt(srcAddr))
+	},
 	0xE1: func(cpu *CPU) {
 		// POP HL
 		cpu.instrPopSPr16(&cpu.HL)
@@ -283,6 +332,28 @@ var instructions = [0x100]func(cpu *CPU) {
 	// 	// POP AF
 	// },
 	/* INC */
+	0x04: func(cpu *CPU) {
+		// INC B
+		cpu.instrINCr8(cpu.BC.SetHi, cpu.BC.Hi())
+	},
+	0x14: func(cpu *CPU) {
+		// INC D
+		cpu.instrINCr8(cpu.DE.SetHi, cpu.DE.Hi())
+	},
+	0x24: func(cpu *CPU) {
+		// INC H
+		cpu.instrINCr8(cpu.HL.SetHi, cpu.HL.Hi())
+	},
+	0x34: func(cpu *CPU) {
+		// INC [HL]
+		val := cpu.MMU.ReadAt(cpu.HL.Value())
+		newVal := val + 1
+		cpu.MMU.WriteAt(cpu.HL.Value(), newVal)
+
+		cpu.setZ(newVal == 0)
+		cpu.setN(false)
+		cpu.setH(common.IsHalfCarry(val, 1))
+	},
 	0x0C: func(cpu *CPU) {
 		// INC C
 		cpu.instrINCr8(cpu.BC.SetLo, cpu.BC.Lo())
@@ -337,6 +408,22 @@ var instructions = [0x100]func(cpu *CPU) {
 		cpu.setZ(newVal == 0)
 		cpu.setN(true)
 		cpu.setH(common.IsHalfBorrow(val, 1))
+	},
+	0x0D: func(cpu *CPU) {
+		// DEC C
+		cpu.instrDECr8(cpu.BC.SetLo, cpu.BC.Lo())
+	},
+	0x1D: func(cpu *CPU) {
+		// DEC E
+		cpu.instrDECr8(cpu.DE.SetLo, cpu.DE.Lo())
+	},
+	0x2D: func(cpu *CPU) {
+		// DEC L
+		cpu.instrDECr8(cpu.HL.SetLo, cpu.DE.Lo())
+	},
+	0x3D: func(cpu *CPU) {
+		// DEC A
+		cpu.instrDECr8(cpu.AF.SetHi, cpu.AF.Hi())
 	},
 	0x77: func(cpu *CPU) {
 		// LD [HL], A

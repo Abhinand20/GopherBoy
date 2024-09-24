@@ -70,6 +70,11 @@ func (cpu *CPU) instrLDn8(dest uint16, src byte) {
 	cpu.MMU.WriteAt(dest, src)
 }
 
+// Common function for LD r8,r8
+func (cpu *CPU) instrLDr8r8(setFunc func(byte), val byte) {
+	setFunc(val)
+}
+
 // Push an 8-bit value onto the stack
 func (cpu *CPU) instrPushSPn8(val byte) {
 	cpu.instrDECr16(&cpu.SP)
@@ -418,6 +423,43 @@ var instructions = [0x100]func(cpu *CPU) {
 
 
 func init() {
+	// Populate instructions from 0x40 - 0xBF
+	for i := 0; i < 8; i++ {
+		i := i
+		// LD r8,r8
+		instructions[0x40 + i] = func(cpu *CPU) {
+			params := buildCbInstrParams(cpu, i)
+			cpu.instrLDr8r8(cpu.BC.SetHi, params.val)
+		}
+		instructions[0x48 + i] = func(cpu *CPU) {
+			params := buildCbInstrParams(cpu, i)
+			cpu.instrLDr8r8(cpu.BC.SetLo, params.val)
+		}
+		instructions[0x50 + i] = func(cpu *CPU) {
+			params := buildCbInstrParams(cpu, i)
+			cpu.instrLDr8r8(cpu.DE.SetHi, params.val)
+		}
+		instructions[0x58 + i] = func(cpu *CPU) {
+			params := buildCbInstrParams(cpu, i)
+			cpu.instrLDr8r8(cpu.DE.SetLo, params.val)
+		}
+		instructions[0x60 + i] = func(cpu *CPU) {
+			params := buildCbInstrParams(cpu, i)
+			cpu.instrLDr8r8(cpu.HL.SetHi, params.val)
+		}
+		instructions[0x68 + i] = func(cpu *CPU) {
+			params := buildCbInstrParams(cpu, i)
+			cpu.instrLDr8r8(cpu.HL.SetLo, params.val)
+		}
+		instructions[0x70 + i] = func(cpu *CPU) {
+			params := buildCbInstrParams(cpu, i)
+			cpu.instrLDr8r8(func (v byte) {cpu.MMU.WriteAt(cpu.HL.Value(), v)}, params.val)
+		}
+		instructions[0x78 + i] = func(cpu *CPU) {
+			params := buildCbInstrParams(cpu, i)
+			cpu.instrLDr8r8(cpu.AF.SetHi, params.val)
+		}
+	}
 	for k := range instructions {
 		if instructions[k] == nil {
 			instructions[k] = func(cpu *CPU) {

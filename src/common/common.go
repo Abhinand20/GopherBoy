@@ -14,6 +14,39 @@ const (
 // Cycles represents the number of "machine cycles"
 type Cycles uint8
 
+/* Bit operations */
+func SetBitAtIndex(r, i byte) byte {
+	var mask byte = 1 << i
+	return r | mask
+}
+func ResetBitAtIndex(r, i byte) byte {
+	var mask byte = 1 << i
+	return r & ^mask
+}
+
+func TestBitAtIndex(r, i byte) bool {
+	return (r >> i) & 1 == 1
+}
+
+func IsHalfCarry(val1, val2 byte) bool {
+	return (val1&0xF + val2&0xF) > 0xF
+}
+
+// Returns whether val1 - val2 will result in half-borrow.
+func IsHalfBorrow(val1, val2 byte) bool {
+	return val1&0xF < val2&0xF
+}
+
+func BoolToByte(v bool) byte {
+	if v {
+		return 1
+	}
+	return 0
+}
+
+
+/* [DEBUG] Opcode to instruction map */
+
 var PrefixInstrDebugLookup = [0x100]string{
 	0x00: "RLC B",
 	0x01: "RLC C",
@@ -531,35 +564,4 @@ var InstrDebugLookup = [0x100]string {
 	0xFD: "ILLEGAL_FD ",
 	0xFE: "CP A,n8",
 	0xFF: "RST $38",
-
-}
-
-/* Bit operations */
-func SetBitAtIndex(r, i byte) byte {
-	var mask byte = 1 << i
-	return r | mask
-}
-func ResetBitAtIndex(r, i byte) byte {
-	var mask byte = 1 << i
-	return r & ^mask
-}
-
-func TestBitAtIndex(r, i byte) bool {
-	return (r >> i) & 1 == 1
-}
-
-func IsHalfCarry(val1, val2 byte) bool {
-	return (val1&0xF + val2&0xF) > 0xF
-}
-
-// Returns whether val1 - val2 will result in half-borrow.
-func IsHalfBorrow(val1, val2 byte) bool {
-	return val1&0xF < val2&0xF
-}
-
-func BoolToByte(v bool) byte {
-	if v {
-		return 1
-	}
-	return 0
 }

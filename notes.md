@@ -59,3 +59,11 @@ op[0x03] = func int { return inc16(&cpu.combine(b,c)) }
 
 cycles := op[pc]()
 ```
+
+
+### Debugger
+
+1. Replace placeholders (a16, n8 etc.) with values
+2. Inspect memory + debug options
+3. Take input commands (step in/out, continue)
+4. Breakpoint

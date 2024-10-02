@@ -44,9 +44,7 @@ func BoolToByte(v bool) byte {
 	return 0
 }
 
-
 /* [DEBUG] Opcode to instruction map */
-
 var PrefixInstrDebugLookup = [0x100]string{
 	0x00: "RLC B",
 	0x01: "RLC C",

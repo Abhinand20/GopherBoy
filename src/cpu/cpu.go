@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"gopherboy/common"
 	"gopherboy/mmu"
-	"log"
+	"strings"
 )
-
-type Cycles common.Cycles
 
 // Flag bit indexes within the F register.
 const (
@@ -122,6 +120,18 @@ func (cpu *CPU) testH() bool {
 	return common.TestBitAtIndex(cpu.AF.Lo(), H_IDX)
 }
 
+func (cpu *CPU) updateInstrPlaceholder(instr string) string {
+	if strings.Contains(instr, "a16") || strings.Contains(instr, "n16") {
+		b1 := uint16(cpu.MMU.ReadAt(cpu.PC))
+		b2 := uint16(cpu.MMU.ReadAt(cpu.PC + 1))
+		addr := b2 << 8 | b1
+		newInstr := strings.ReplaceAll(instr, "a16", fmt.Sprintf("a16 {%#4x}", addr))
+		newInstr = strings.ReplaceAll(newInstr, "n16", fmt.Sprintf("n16 {%#4x}", addr))
+		return newInstr
+	}
+	return ""
+}
+
 func (cpu *CPU) printRegisterDump() {
 	out := fmt.Sprintf(
 		"B: %#4x\tC: %#4x\nD: %#4x\tE: %#4x\nH: %#4x\tL: %#4x\nA: %#4x\n",
@@ -158,7 +168,7 @@ func (cpu *CPU) Init() error {
 }
 
 // TODO: Emulate a single CPU tick, return number of instruction cycles elapsed.
-func (cpu *CPU) Tick() Cycles {
+func (cpu *CPU) Tick() int {
 	addr := cpu.PC
 	opcode := cpu.popPC8()
 	// TODO: Print the exact value instead of n8, e8 etc.
@@ -172,9 +182,11 @@ func (cpu *CPU) Tick() Cycles {
 		instructionMapping = cbInstructions
 		opcodeCyclesMapping = CBOpcodeCycles
 	}
-	log.Printf("%#4x %#2x\t%s\n", addr, opcode, opcodeStr)
+	ii := NewInstrInfo(opcode, addr, opcodeStr)
+	dInfo := ii.DebugInfo(cpu)
 	instructionMapping[opcode](cpu)
 	cycles := opcodeCyclesMapping[opcode] * 4
+	fmt.Print(dInfo)
 	if cpu.debug {
 		cpu.printRegisterDump()
 	}

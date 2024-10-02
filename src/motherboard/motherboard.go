@@ -34,14 +34,10 @@ func (mb *Motherboard) Emulate() error {
 	fmt.Println("Started emulation...")
 	totalCycles := 0
 	i := 0
-	stop := 10
 	for {
 		<- mb.masterClk.C
 		elapsedCycles := mb.CPU.Tick()
-		totalCycles += int(elapsedCycles)
+		totalCycles += elapsedCycles
 		i += 1
-		if i == stop {
-			return nil
-		}
 	}
 }

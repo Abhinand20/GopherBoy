@@ -1,6 +1,6 @@
-package cpu
+package gameboy
 
-import "gopherboy/common"
+import "gopherboy/pkg/common"
 
 // CBOpcodeCycles is the number of cpu cycles for each CB opcode.
 var CBOpcodeCycles = []int{

@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"gopherboy/motherboard"
+	"gopherboy/pkg/gameboy"
 	"os"
 )
 
@@ -19,12 +19,12 @@ func main() {
 	flag.Parse()
 	
 	fmt.Printf("Debug: %v\n", debug)
-	mb := motherboard.NewMotherboard(bootRom, cartridge, debug)
-	if err := mb.Init(); err != nil {
+	gb := gameboy.NewGB(bootRom, cartridge, debug)
+	if err := gb.Init(); err != nil {
 		fmt.Printf("%v\n", err)
 		os.Exit(1)
 	}
-	if err := mb.Emulate(); err != nil {
+	if err := gb.Emulate(); err != nil {
 		fmt.Printf("Stopped emulation: %v\n", err)
 		os.Exit(1)
 	}

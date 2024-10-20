@@ -1,8 +1,8 @@
-package cpu
+package gameboy
 
 import (
 	"fmt"
-	"gopherboy/common"
+	"gopherboy/pkg/common"
 	"log"
 	"os"
 	"strings"

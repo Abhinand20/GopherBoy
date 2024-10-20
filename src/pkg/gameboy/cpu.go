@@ -1,9 +1,8 @@
-package cpu
+package gameboy
 
 import (
 	"fmt"
-	"gopherboy/common"
-	"gopherboy/mmu"
+	"gopherboy/pkg/common"
 	"strings"
 )
 
@@ -55,7 +54,7 @@ func (r *Register) applyMask() {
 }
 
 type CPU struct {
-	MMU *mmu.MMU
+	MMU *MMU
 	/* registers */
 	AF Register
 	BC Register
@@ -194,6 +193,6 @@ func (cpu *CPU) Tick() int {
 }
 
 
-func NewCPU(mmu *mmu.MMU, debug bool) *CPU {
+func NewCPU(mmu *MMU, debug bool) *CPU {
 	return &CPU{MMU: mmu,debug: debug} 
 }

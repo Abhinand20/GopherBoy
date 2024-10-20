@@ -5,18 +5,25 @@ import (
 	"fmt"
 	"gopherboy/common"
 	"gopherboy/cpu"
+	"gopherboy/mmu"
 	"time"
 )
 
 type Motherboard struct {
 	CPU *cpu.CPU
+	MMU *mmu.MMU
 	// TODO(abhinandj): Add display
 	masterClk *time.Ticker
 	debug bool
 }
 
 func NewMotherboard(bootRomPath, cartridgePath string, debug bool) (*Motherboard) {
-	return &Motherboard{CPU: cpu.NewCPU(bootRomPath, cartridgePath, debug), debug: debug}
+	mmu := mmu.NewMMU(bootRomPath, cartridgePath)
+	return &Motherboard{
+		CPU: cpu.NewCPU(mmu, debug), 
+		MMU: mmu, 
+		debug: debug,
+	}
 }
 
 func (mb *Motherboard) Init() error {

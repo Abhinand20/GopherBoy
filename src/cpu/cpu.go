@@ -182,6 +182,6 @@ func (cpu *CPU) Tick() Cycles {
 }
 
 
-func NewCPU(bootRomPath, cartridgePath string, debug bool) *CPU {
-	return &CPU{MMU: mmu.NewMMU(bootRomPath, cartridgePath), debug: debug}
+func NewCPU(mmu *mmu.MMU, debug bool) *CPU {
+	return &CPU{MMU: mmu,debug: debug} 
 }

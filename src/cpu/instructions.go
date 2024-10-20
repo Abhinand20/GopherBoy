@@ -1,13 +1,15 @@
 package cpu
 
 import (
+	"fmt"
 	"gopherboy/common"
 	"log"
 	"os"
+	"strings"
 )
 
 // OpcodeCycles is the number of cpu cycles for each normal opcode.
-var OpcodeCycles = []Cycles{
+var OpcodeCycles = []int{
 	1, 3, 2, 2, 1, 1, 2, 1, 5, 2, 2, 2, 1, 1, 2, 1, // 0
 	0, 3, 2, 2, 1, 1, 2, 1, 3, 2, 2, 2, 1, 1, 2, 1, // 1
 	2, 3, 2, 2, 1, 1, 2, 1, 2, 2, 2, 2, 1, 1, 2, 1, // 2
@@ -26,6 +28,61 @@ var OpcodeCycles = []Cycles{
 	3, 3, 2, 1, 0, 4, 2, 4, 3, 2, 4, 1, 0, 0, 2, 4, // f
 } //0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
 
+type InstrInfo struct {
+	opcode byte
+	addr uint16
+	instr string
+	leftOp string
+	rightOp string
+	instrType string
+}
+
+func NewInstrInfo(opcode byte, addr uint16, instr string) *InstrInfo {
+	instrType, args, found := strings.Cut(instr, " ")
+	instrInfo := &InstrInfo{
+		opcode: opcode,
+		addr: addr,
+		instr: instr,
+		instrType: instrType,
+	}
+	if found {
+		leftOp, rightOp, _ := strings.Cut(args, ",")
+		instrInfo.leftOp = leftOp
+		instrInfo.rightOp = rightOp
+	}
+	return instrInfo
+}
+
+func (ii *InstrInfo) updateInstrPlaceholder(op string, cpu *CPU) string {
+	newInstr := op
+	if strings.Contains(op, "a16") || strings.Contains(op, "n16") {
+		b1 := uint16(cpu.MMU.ReadAt(cpu.PC))
+		b2 := uint16(cpu.MMU.ReadAt(cpu.PC + 1))
+		addr := b2 << 8 | b1
+		newInstr = strings.ReplaceAll(op, "a16", fmt.Sprintf("a16 {%#4x}", addr))
+		newInstr = strings.ReplaceAll(newInstr, "n16", fmt.Sprintf("n16 {%#4x}", addr))
+	}
+	if strings.Contains(op, "n8") || strings.Contains(op, "a8") {
+		addr := cpu.MMU.ReadAt(cpu.PC)
+		newInstr = strings.ReplaceAll(op, "n8", fmt.Sprintf("n8 {%#2x}", addr))
+		newInstr = strings.ReplaceAll(newInstr, "a8", fmt.Sprintf("a8 {$FF00 + %#2x}", addr))
+	}
+	if strings.Contains(op, "e8") {
+		addr := int8(cpu.MMU.ReadAt(cpu.PC))
+		newInstr = strings.ReplaceAll(newInstr, "e8", fmt.Sprintf("e8 {%d}", addr))
+	}
+	return newInstr
+}
+
+func (ii *InstrInfo) DebugInfo(cpuState *CPU) string {
+	ii.leftOp = ii.updateInstrPlaceholder(ii.leftOp, cpuState)
+	ii.rightOp = ii.updateInstrPlaceholder(ii.rightOp, cpuState)
+	instrStr := ii.instrType + " " + ii.leftOp
+	if len(ii.rightOp) > 0 {
+		instrStr += "," + ii.rightOp
+	}
+	return fmt.Sprintf("%#4x %#2x\t%s\n", ii.addr, ii.opcode, instrStr)
+}
 
 // Implements common XOR operations and sets register value using the provided function.
 func (cpu *CPU) instrXOR(val byte) {

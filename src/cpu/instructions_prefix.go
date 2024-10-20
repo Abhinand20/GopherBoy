@@ -3,7 +3,7 @@ package cpu
 import "gopherboy/common"
 
 // CBOpcodeCycles is the number of cpu cycles for each CB opcode.
-var CBOpcodeCycles = []Cycles{
+var CBOpcodeCycles = []int{
 	2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, // 0
 	2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, // 1
 	2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, // 2

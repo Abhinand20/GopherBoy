@@ -30,6 +30,7 @@ func (gb *GB) Init() error {
 	if err := gb.CPU.Init(); err != nil {
 		return fmt.Errorf("failed to initialize CPU: %v", err)
 	}
+	gb.MMU.Init(gb)
 	gb.masterClk = time.NewTicker(time.Second / time.Duration(common.ClkFrequency))
 	return nil
 }

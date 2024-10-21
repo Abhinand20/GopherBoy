@@ -163,7 +163,7 @@ func (cpu *CPU) Init() error {
 	cpu.PC = 0
 	// Only the upper 4 bits of the F register are in-use.
 	cpu.AF.mask = 0xFFF0
-	return cpu.MMU.Init()
+	return nil
 }
 
 // TODO: Emulate a single CPU tick, return number of instruction cycles elapsed.

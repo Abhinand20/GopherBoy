@@ -64,6 +64,7 @@ type CPU struct {
 	PC uint16
 	// Initialized to 0xFFFE, but usually overriden by program
 	SP Register
+	gb *GB
 	debug bool
 }
 
@@ -158,11 +159,12 @@ func (cpu *CPU) printRegisterDump() {
 }
 
 
-func (cpu *CPU) Init() error {
+func (cpu *CPU) Init(gb *GB) error {
 	// TODO(abhinandj): Update the mapping from opcode to instructions
 	cpu.PC = 0
 	// Only the upper 4 bits of the F register are in-use.
 	cpu.AF.mask = 0xFFF0
+	cpu.gb = gb
 	return nil
 }
 
@@ -170,7 +172,6 @@ func (cpu *CPU) Init() error {
 func (cpu *CPU) Tick() int {
 	addr := cpu.PC
 	opcode := cpu.popPC8()
-	// TODO: Print the exact value instead of n8, e8 etc.
 	opcodeStr := common.InstrDebugLookup[opcode]
 	instructionMapping := instructions
 	opcodeCyclesMapping := OpcodeCycles

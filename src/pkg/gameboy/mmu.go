@@ -5,7 +5,6 @@ import (
 	"os"
 )
 
-
 type MMU struct {
 	// 256 Bytes BIOS
 	bootRom [0x100]byte

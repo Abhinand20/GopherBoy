@@ -311,6 +311,20 @@ var instructions = [0x100]func(cpu *CPU) {
 		srcAddr := 0xFF00 + uint16(cpu.BC.Lo())
 		cpu.AF.SetHi(cpu.MMU.ReadAt(srcAddr))
 	},
+	/* Interrupt control (Ideally these should be delayed by 1 instruction) */
+	0xF3: func(cpu *CPU) {
+		// DI
+		cpu.gb.ResetIME()
+	},
+	0xFB: func(cpu *CPU) {
+		// EI
+		cpu.gb.SetIME()
+	},
+	0xD9: func(cpu *CPU) {
+		// RETI
+		cpu.gb.SetIME()
+		cpu.instrPopSPr16PC()
+	},
 	/* CP n8 */
 	0xFE: func(cpu *CPU) {
 		// CP n8

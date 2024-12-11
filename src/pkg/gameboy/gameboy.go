@@ -110,7 +110,8 @@ func (gb *GB) Emulate() error {
 		interruptCycles := gb.handleInterrupts()
 		totalCycles = elapsedCycles + interruptCycles
 		i += 1
-		// TODO: Handle synchronization
+		// TODO: Handle synchronization between CPU and PPU
+		// we should render the screen at 60 fps
 		if totalCycles == 0 {
 			continue
 		}
